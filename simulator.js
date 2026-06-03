@@ -21,7 +21,7 @@ var LCM = (arr, n) =>
     return ans; 
 };
 
-var simulations = (probabilities, names, n) =>{
+var simulations = (probabilities, names, n, target) =>{
     lcm = LCM(probabilities, probabilities.length);
     slots = probabilities.map(x => lcm/x);
 
@@ -29,6 +29,7 @@ var simulations = (probabilities, names, n) =>{
     gottenAt = Array();
     finished = Array();
     dupes = Array();
+    underTarget = 0;
 
     for(let i = 0 ; i < n; i++)
     {
@@ -72,6 +73,7 @@ var simulations = (probabilities, names, n) =>{
                 } 
             }
         }
+        if(counter <= target) underTarget++;
         dupes.push(dupeCounter);
     }
 
@@ -90,9 +92,9 @@ var simulations = (probabilities, names, n) =>{
 
 
 
-    console.log("In " + n+ " generations the results were: \n\t The minimum value was: " + min + 
-        "\n\t The maximum value was: " + max + "\n\t The average value was: " + average + "\n\t the average number of dupes was: " +
-        averageDupes
+    console.log("In " + n+ " generations the results were: \n\t The minimum number of attempts was: " + min + 
+        "\n\t The maximum number of attempts was: " + max + "\n\t The average number of attempts was: " + average + "\n\t the average number of dupes was: " +
+        averageDupes + "\n\t In the end " + (underTarget/n * 100) + "% of simulations were under target"
     )
 
     for(let i = 0; i < slots.length; i++)
@@ -104,4 +106,4 @@ var simulations = (probabilities, names, n) =>{
     return;
 };
 
-simulations([800, 50, 50, 400], Array(), 1000000);
+simulations([800], Array(), 1000000, 4000);
