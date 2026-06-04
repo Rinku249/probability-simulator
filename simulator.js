@@ -28,15 +28,13 @@ var simulations = (probabilities, names, n, target) =>{
     results = Array();
     gottenAt = Array();
     finished = Array();
-    dupes = Array();
     underTarget = 0;
 
     for(let i = 0 ; i < n; i++)
     {
-        results.push(slots.map(x => false));
+        results.push(slots.map(x => 0));
         gottenAt.push(Array());
         counter = 0;
-        dupeCounter = 0;
         while(true)
         {
             counter++;
@@ -58,15 +56,9 @@ var simulations = (probabilities, names, n, target) =>{
             }
             if(winner >= 0)
             {
-                if(results[i][winner])
-                {
-                    dupeCounter++;
-                    continue;
-                }
-                results[i][winner] = true;
-                //TODO - implement a way to know which item was gotten in what order
-                gottenAt[i].push(Array(winner, counter));
-                if(!results[i].some(x => !x))
+                if(results[i][winner] == 0) gottenAt[i][winner] = counter;
+                results[i][winner] += 1;
+                if(!results[i].some(x => x == 0))
                 {
                     finished.push(counter);
                     break;
@@ -74,7 +66,6 @@ var simulations = (probabilities, names, n, target) =>{
             }
         }
         if(counter <= target) underTarget++;
-        dupes.push(dupeCounter);
     }
 
 
@@ -88,22 +79,28 @@ var simulations = (probabilities, names, n, target) =>{
     }
 
     average = finished.reduce((sum, x) => sum + x, 0)/n
-    averageDupes = dupes.reduce((sum, x) => sum + x, 0)/n
-
-
 
     console.log("In " + n+ " generations the results were: \n\t The minimum number of attempts was: " + min + 
-        "\n\t The maximum number of attempts was: " + max + "\n\t The average number of attempts was: " + average + "\n\t the average number of dupes was: " +
-        averageDupes + "\n\t In the end " + (underTarget/n * 100) + "% of simulations were under target"
+        "\n\t The maximum number of attempts was: " + max + "\n\t The average number of attempts was: " + average + 
+        "\n\t In the end " + (underTarget/n * 100) + "% of simulations were under target"
     )
 
     for(let i = 0; i < slots.length; i++)
     {
-        averageNitem = gottenAt.reduce((sum,x) => sum + x[i][1], 0)/n
-        console.log("\t Average number of attempts to get item " + (i+1) + ": " +averageNitem);
+        averageNitem = 0
+        averageDupes = 0
+        for(let j = 0 ; j < gottenAt.length; j++)
+        {
+            averageNitem += gottenAt[j][i];
+            averageDupes += results[j][i];
+        }
+        averageNitem /= n;
+        averageDupes /= n;
+        console.log("\t Average number of attempts to get " + names[i] + ": " +averageNitem + 
+            " Gotten an average of " + averageDupes + " times");
     }
 
     return;
 };
 
-simulations([800], Array(), 1000000, 4000);
+simulations([800,400,50,50], ["pet", "enhanced seed", "armour seed", "weapon seed"], 100000, 400);
